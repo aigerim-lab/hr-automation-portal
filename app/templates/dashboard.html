@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HR Dashboard</title>
+</head>
+<body>
+
+<h1>Employees</h1>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Full Name</th>
+        <th>Department</th>
+        <th>Position</th>
+    </tr>
+
+    {% for employee in employees %}
+    <tr>
+        <td>{{ employee.id }}</td>
+        <td>{{ employee.full_name }}</td>
+        <td>{{ employee.department }}</td>
+        <td>{{ employee.position }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+</body>
+</html>
