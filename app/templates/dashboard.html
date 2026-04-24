@@ -13,6 +13,7 @@
         <th>Full Name</th>
         <th>Department</th>
         <th>Position</th>
+        <th>Profile</th>
     </tr>
 
     {% for employee in employees %}
@@ -21,6 +22,9 @@
         <td>{{ employee.full_name }}</td>
         <td>{{ employee.department }}</td>
         <td>{{ employee.position }}</td>
+        <td>
+            <a href="/employees/{{ employee.id }}">Open</a>
+        </td>
     </tr>
     {% endfor %}
 

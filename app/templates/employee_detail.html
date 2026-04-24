@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Profile</title>
+</head>
+<body>
+
+<a href="/dashboard">Back to dashboard</a>
+
+<h1>{{ employee.full_name }}</h1>
+
+<p><b>Department:</b> {{ employee.department }}</p>
+<p><b>Position:</b> {{ employee.position }}</p>
+
+<h2>Upload PDF Document</h2>
+
+<form action="/employees/{{ employee.id }}/upload-pdf" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept="application/pdf" required>
+    <button type="submit">Upload PDF</button>
+</form>
+
+
+<h2>Uploaded Documents</h2>
+
+{% if employee.documents %}
+    {% for doc in employee.documents %}
+        <h3>{{ doc.filename }}</h3>
+        <pre>{{ doc.extracted_text }}</pre>
+    {% endfor %}
+{% else %}
+    <p>No documents uploaded yet.</p>
+{% endif %}
+
+</body>
+</html>
