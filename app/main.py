@@ -1,4 +1,7 @@
-from fastapi import FastAPI, Depends, Request, UploadFile, File, HTTPException
+from fastapi import FastAPI, Depends, Request, UploadFile, File, HTTPException, Form
+
+from fastapi.staticfiles import StaticFiles
+
 from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
@@ -13,9 +16,13 @@ from app.models import Employee, Document
 from app.services.pdf_parser import extract_text_from_pdf
 
 from pydantic import BaseModel
+
+from app.models import WorkExperience
 # ВАЖНО: сначала создаём app
 app = FastAPI()
-UPLOAD_DIR = Path("app/services")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+UPLOAD_DIR = Path("app/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -57,17 +64,173 @@ def get_employees(db: Session = Depends(get_db)):
     return db.query(Employee).all()
 
 @app.get("/dashboard")
-def dashboard(request: Request, db: Session = Depends(get_db)):
-    employees = db.query(Employee).all()
+def dashboard(
+    request: Request,
+    search: str = "",
+    department: str = "",
+    position: str = "",
+    db: Session = Depends(get_db)
+):
+    query = db.query(Employee)
+
+    if search:
+        query = query.filter(Employee.full_name.ilike(f"%{search}%"))
+
+    if department:
+        query = query.filter(Employee.department.ilike(f"%{department}%"))
+
+    if position:
+        query = query.filter(Employee.position.ilike(f"%{position}%"))
+
+    employees = query.all()
 
     return templates.TemplateResponse(
-        request=request,               # Передаём request как именованный аргумент
-        name="dashboard.html",          # Явно указываем имя шаблона
+        request=request,
+        name="dashboard.html",
         context={
-        "request": request,
-        "employees": employees
-    } # Весь ваш набор данных кладём в context
+            "request": request,
+            "employees": employees,
+            "search": search,
+            "department": department,
+            "position": position
+        }
     )
+
+
+
+
+@app.get("/employees/new")
+def new_employee_form(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="employee_form.html",
+        context={"request": request}
+    )
+
+@app.post("/employees/new")
+def create_employee_from_form(
+    full_name: str = Form(...),
+    department: str = Form(...),
+    position: str = Form(...),
+    experience_summary: str = Form(""),
+    db: Session = Depends(get_db)
+):
+    new_employee = Employee(
+        full_name=full_name,
+        department=department,
+        position=position,
+        experience_summary=experience_summary
+    )
+
+    db.add(new_employee)
+    db.commit()
+    db.refresh(new_employee)
+
+    return RedirectResponse(
+        url="/dashboard",
+        status_code=303
+    )
+
+
+
+@app.get("/employees/{employee_id}/edit")
+def edit_employee_form(
+    employee_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    employee = db.query(Employee).filter(Employee.id == employee_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    return templates.TemplateResponse(
+        request=request,
+        name="employee_edit.html",
+        context={
+            "request": request,
+            "employee": employee
+        }
+    )
+
+
+@app.post("/employees/{employee_id}/edit")
+def update_employee(
+    employee_id: int,
+    full_name: str = Form(...),
+    department: str = Form(...),
+    position: str = Form(...),
+    experience_summary: str = Form(""),
+    db: Session = Depends(get_db)
+):
+    employee = db.query(Employee).filter(Employee.id == employee_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    employee.full_name = full_name
+    employee.department = department
+    employee.position = position
+    employee.experience_summary = experience_summary
+
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/employees/{employee_id}",
+        status_code=303
+    )
+
+
+@app.post("/employees/{employee_id}/delete")
+def delete_employee(
+    employee_id: int,
+    db: Session = Depends(get_db)
+):
+    employee = db.query(Employee).filter(Employee.id == employee_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    db.delete(employee)
+    db.commit()
+
+    return RedirectResponse(
+        url="/dashboard",
+        status_code=303
+    )
+
+@app.post("/employees/{employee_id}/experience")
+def add_experience(
+    employee_id: int,
+    organization: str = Form(...),
+    job_title: str = Form(...),
+    city: str = Form(""),
+    period: str = Form(""),
+    bin: str = Form(""),
+    db: Session = Depends(get_db)
+):
+    employee = db.query(Employee).filter(Employee.id == employee_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    exp = WorkExperience(
+        employee_id=employee_id,
+        organization=organization,
+        job_title=job_title,
+        city=city,
+        period=period,
+        bin=bin
+    )
+
+    db.add(exp)
+    db.commit()
+
+    return RedirectResponse(
+        url=f"/employees/{employee_id}",
+        status_code=303
+    )
+
 
 @app.post("/employees/{employee_id}/upload-pdf")
 async def upload_pdf(
@@ -126,4 +289,3 @@ def employee_detail(
             "employee": employee
         }
     )
-

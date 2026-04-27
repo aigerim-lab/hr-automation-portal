@@ -1,34 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>HR Dashboard</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Employees</h1>
+{% block title %}Dashboard{% endblock %}
 
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Full Name</th>
-        <th>Department</th>
-        <th>Position</th>
-        <th>Profile</th>
-    </tr>
+{% block content %}
 
-    {% for employee in employees %}
-    <tr>
-        <td>{{ employee.id }}</td>
-        <td>{{ employee.full_name }}</td>
-        <td>{{ employee.department }}</td>
-        <td>{{ employee.position }}</td>
-        <td>
-            <a href="/employees/{{ employee.id }}">Open</a>
-        </td>
-    </tr>
-    {% endfor %}
+<div class="card">
+    <h1>Employee Dashboard</h1>
+    <p>Manage employee profiles, work experience records, and uploaded HR documents.</p>
+    <a class="btn" href="/employees/new">Add Employee</a>
+</div>
 
-</table>
+<div class="card">
+    <h2>Search & Filter</h2>
 
-</body>
-</html>
+    <form method="get" action="/dashboard">
+
+        <label>Search by Name</label>
+        <input type="text" name="search" value="{{ search }}">
+
+        <label>Department</label>
+        <input type="text" name="department" value="{{ department }}">
+
+        <label>Position</label>
+        <input type="text" name="position" value="{{ position }}">
+
+        <button class="btn" type="submit">Apply</button>
+        <a class="btn btn-secondary" href="/dashboard">Reset</a>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Employees</h2>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Department</th>
+            <th>Position</th>
+            <th>Profile</th>
+        </tr>
+
+        {% for employee in employees %}
+        <tr>
+            <td>{{ employee.id }}</td>
+            <td>{{ employee.full_name }}</td>
+            <td>{{ employee.department }}</td>
+            <td>{{ employee.position }}</td>
+            <td>
+                <a class="btn" href="/employees/{{ employee.id }}">Open</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

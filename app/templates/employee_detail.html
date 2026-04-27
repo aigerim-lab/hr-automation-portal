@@ -1,35 +1,98 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Employee Profile</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<a href="/dashboard">Back to dashboard</a>
+{% block title %}Employee Profile{% endblock %}
 
-<h1>{{ employee.full_name }}</h1>
+{% block content %}
 
-<p><b>Department:</b> {{ employee.department }}</p>
-<p><b>Position:</b> {{ employee.position }}</p>
+<div class="card">
+    <a href="/dashboard">← Back to dashboard</a>
+    <h1>{{ employee.full_name }}</h1>
 
-<h2>Upload PDF Document</h2>
+    <p><strong>Department:</strong> {{ employee.department }}</p>
+    <p><strong>Position:</strong> {{ employee.position }}</p>
 
-<form action="/employees/{{ employee.id }}/upload-pdf" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept="application/pdf" required>
-    <button type="submit">Upload PDF</button>
-</form>
+    <a class="btn" href="/employees/{{ employee.id }}/edit">Edit Employee</a>
 
+    <form action="/employees/{{ employee.id }}/delete" method="post" style="display:inline;">
+    <button class="btn btn-danger" type="submit">Delete Employee</button>
+    </form>
 
-<h2>Uploaded Documents</h2>
+</div>
 
-{% if employee.documents %}
-    {% for doc in employee.documents %}
-        <h3>{{ doc.filename }}</h3>
-        <pre>{{ doc.extracted_text }}</pre>
-    {% endfor %}
-{% else %}
-    <p>No documents uploaded yet.</p>
-{% endif %}
+<div class="card">
+    <h2>Upload PDF Document</h2>
 
-</body>
-</html>
+    <form action="/employees/{{ employee.id }}/upload-pdf" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="application/pdf" required>
+        <button class="btn" type="submit">Upload PDF</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Add Work Experience</h2>
+
+    <form action="/employees/{{ employee.id }}/experience" method="post">
+
+        <label>Organization</label>
+        <input type="text" name="organization" required>
+
+        <label>Job Title</label>
+        <input type="text" name="job_title" required>
+
+        <label>City</label>
+        <input type="text" name="city">
+
+        <label>Period</label>
+        <input type="text" name="period" placeholder="e.g. 2020–2023">
+
+        <label>BIN</label>
+        <input type="text" name="bin">
+
+        <button class="btn" type="submit">Add Experience</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Work Experience</h2>
+
+    {% if employee.experiences %}
+        <table>
+            <tr>
+                <th>Organization</th>
+                <th>Position</th>
+                <th>City</th>
+                <th>Period</th>
+                <th>BIN</th>
+            </tr>
+
+            {% for exp in employee.experiences %}
+            <tr>
+                <td>{{ exp.organization }}</td>
+                <td>{{ exp.job_title }}</td>
+                <td>{{ exp.city }}</td>
+                <td>{{ exp.period }}</td>
+                <td>{{ exp.bin }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No experience records yet.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Uploaded Documents</h2>
+
+    {% if employee.documents %}
+        {% for doc in employee.documents %}
+            <div class="card">
+                <h3>{{ doc.filename }}</h3>
+                <pre>{{ doc.extracted_text }}</pre>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No documents uploaded yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

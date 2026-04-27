@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Add Employee{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <h1>Add New Employee</h1>
+    <p>Create a structured employee profile for HR records.</p>
+</div>
+
+<div class="card">
+    <form action="/employees/new" method="post">
+
+        <label>Full Name</label>
+        <input type="text" name="full_name" placeholder="Example: Aigerim Koszhanova" required>
+
+        <label>Department</label>
+        <input type="text" name="department" placeholder="Example: HR Department" required>
+
+        <label>Position</label>
+        <input type="text" name="position" placeholder="Example: Intern" required>
+
+        <label>Experience Summary</label>
+        <textarea name="experience_summary" rows="5" placeholder="Short summary of employee experience"></textarea>
+
+        <button class="btn" type="submit">Save Employee</button>
+        <a class="btn btn-secondary" href="/dashboard">Cancel</a>
+    </form>
+</div>
+
+{% endblock %}

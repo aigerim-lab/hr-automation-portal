@@ -40,7 +40,9 @@ class WorkExperience(Base):
 
     organization = Column(String(255), nullable=False)
     job_title = Column(String(255), nullable=False)
-    years = Column(String(100), nullable=True)
+    city = Column(String(255), nullable=True)
+    period = Column(String(100), nullable=True)
+    bin = Column(String(50), nullable=True)
 
     # relationship back
     employee = relationship("Employee", back_populates="experiences")
