@@ -81,3 +81,6 @@ Astana IT University
 
 ### Employee Profile
 ![Profile](screenshots/profile.png)
+
+### ER Diagram
+![ER_Diagram] (screenshots/er_diagram.png)
