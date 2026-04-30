@@ -1,58 +1,121 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}{{ t.title }}{% endblock %}
 
 {% block content %}
 
+<div class="hero-carousel" id="carousel">
+    <div class="carousel-item active" style="background-image: linear-gradient(rgba(0, 51, 102, 0.6), rgba(0, 51, 102, 0.6)), url('/static/1.png');"></div>
+    <div class="carousel-item" style="background-image: linear-gradient(rgba(0, 51, 102, 0.6), rgba(0, 51, 102, 0.6)), url('/static/2.png');"></div>
+    <div class="carousel-item" style="background-image: linear-gradient(rgba(0, 51, 102, 0.6), rgba(0, 51, 102, 0.6)), url('/static/3.png');"></div>
+    <div class="carousel-item" style="background-image: linear-gradient(rgba(0, 51, 102, 0.6), rgba(0, 51, 102, 0.6)), url('/static/4.png');"></div>
+    <div class="carousel-item" style="background-image: linear-gradient(rgba(0, 51, 102, 0.6), rgba(0, 51, 102, 0.6)), url('/static/5.png');"></div>
+
+    <div class="hero-content-overlay">
+        <h1>{{ t.hero_title }}</h1>
+        <div class="departments">
+            <span>{{ t.department1 }}</span>
+            <span>{{ t.department2 }}</span>
+            <span>{{ t.department3 }}</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentIndex = 0;
+    const items = document.querySelectorAll('.carousel-item');
+    
+    function showNextSlide() {
+        items[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % items.length;
+        items[currentIndex].classList.add('active');
+    }
+    setInterval(showNextSlide, 4000);
+</script>
+
 <div class="card">
-    <h1>Employee Dashboard</h1>
+    <h1>{{ t.title }}</h1>
     <p>Manage employee profiles, work experience records, and uploaded HR documents.</p>
-    <a class="btn" href="/employees/new">Add Employee</a>
+    <div style="margin-top: 15px;">
+        <a class="btn" href="/employees/new">Add Employee</a>
+    </div>
+</div>
+
+<div style="margin: 20px 0; text-align: right;">
+    <span>{{ "Language" if lang == "en" else "Язык" if lang == "ru" else "Тіл" }}:</span>
+    <a href="/dashboard?lang=en" style=" font-weight:bold if lang = 'en' ">EN</a> |
+    <a href="/dashboard?lang=ru" style=" font-weight:bold if lang = 'ru' ">RU</a> |
+    <a href="/dashboard?lang=kz" style=" font-weight:bold if lang = 'kz' ">KZ</a>
 </div>
 
 <div class="card">
     <h2>Search & Filter</h2>
-
     <form method="get" action="/dashboard">
-
-        <label>Search by Name</label>
-        <input type="text" name="search" value="{{ search }}">
-
-        <label>Department</label>
-        <input type="text" name="department" value="{{ department }}">
-
-        <label>Position</label>
-        <input type="text" name="position" value="{{ position }}">
-
-        <button class="btn" type="submit">Apply</button>
-        <a class="btn btn-secondary" href="/dashboard">Reset</a>
+        <input type="hidden" name="lang" value="{{ lang }}">
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="flex: 1;">
+                <label>Search by Name</label>
+                <input type="text" name="search" value="{{ search }}" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+                <label>{{ t.department }}</label>
+                <input type="text" name="department" value="{{ department }}" style="width: 100%;">
+            </div>
+            <div style="flex: 1;">
+                <label>{{ t.position }}</label>
+                <input type="text" name="position" value="{{ position }}" style="width: 100%;">
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <button class="btn" type="submit">Apply</button>
+            <a class="btn btn-secondary" href="/dashboard?lang={{ lang }}">Reset</a>
+        </div>
     </form>
 </div>
 
 <div class="card">
-    <h2>Employees</h2>
-
+    <h2>{{ t.employees }}</h2>
     <table>
-        <tr>
-            <th>ID</th>
-            <th>Full Name</th>
-            <th>Department</th>
-            <th>Position</th>
-            <th>Profile</th>
-        </tr>
-
-        {% for employee in employees %}
-        <tr>
-            <td>{{ employee.id }}</td>
-            <td>{{ employee.full_name }}</td>
-            <td>{{ employee.department }}</td>
-            <td>{{ employee.position }}</td>
-            <td>
-                <a class="btn" href="/employees/{{ employee.id }}">Open</a>
-            </td>
-        </tr>
-        {% endfor %}
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>{{ t.department }}</th>
+                <th>{{ t.position }}</th>
+                <th>Profile</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employees %}
+            <tr>
+                <td>{{ employee.id }}</td>
+                <td>{{ employee.full_name }}</td>
+                <td>{{ employee.department }}</td>
+                <td>{{ employee.position }}</td>
+                <td>
+                    <a class="btn" href="/employees/{{ employee.id }}?lang={{ lang }}">{{ t.open }}</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center;">No employees found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
+</div>
+
+
+<div class="card">
+    <h2>News</h2>
+    {% for n in news %}
+        <div class="card" style="margin-top:10px; border-left: 5px solid #003366;">
+            <h3>{{ n.title[lang] }}</h3>
+            <p style="color: gray; font-size: 0.9em;">{{ n.date }}</p>
+        </div>
+    {% endfor %}
 </div>
 
 {% endblock %}

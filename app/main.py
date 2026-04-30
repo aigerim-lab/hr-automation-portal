@@ -18,7 +18,13 @@ from app.services.pdf_parser import extract_text_from_pdf
 from pydantic import BaseModel
 
 from app.models import WorkExperience
-# ВАЖНО: сначала создаём app
+
+from app.translations import translations
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
@@ -63,12 +69,32 @@ def create_employee(
 def get_employees(db: Session = Depends(get_db)):
     return db.query(Employee).all()
 
+news = [
+    {
+        "title": {
+            "en": "ICAO meeting held",
+            "ru": "Состоялось совещание ICAO",
+            "kz": "ICAO кеңесі өтті"
+        },
+        "date": "28 April 2026"
+    },
+    {
+        "title": {
+            "en": "Flight safety updates released",
+            "ru": "Обновления по безопасности полетов",
+            "kz": "Ұшу қауіпсіздігі жаңартылды"
+        },
+        "date": "27 April 2026"
+    }
+]
+
 @app.get("/dashboard")
 def dashboard(
     request: Request,
     search: str = "",
     department: str = "",
     position: str = "",
+    lang: str = "en",
     db: Session = Depends(get_db)
 ):
     query = db.query(Employee)
@@ -92,12 +118,12 @@ def dashboard(
             "employees": employees,
             "search": search,
             "department": department,
-            "position": position
+            "position": position,
+            "t": translations.get(lang, translations["en"]),
+            "lang": lang,
+            "news": news
         }
     )
-
-
-
 
 @app.get("/employees/new")
 def new_employee_form(request: Request):
@@ -289,3 +315,5 @@ def employee_detail(
             "employee": employee
         }
     )
+
+
