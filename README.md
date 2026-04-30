@@ -84,3 +84,19 @@ Astana IT University
 
 ### ER_Diagram
 ![ER_Diagram](screenshots/er_diagram.png)
+
+## Running the Application with Docker
+
+1. Clone the repository:
+   ```bash
+   git clone <repo-url>
+   cd <project-folder>
+
+2. Build and start the Docker containers:
+
+docker-compose up --build
+3. Access the application on http://127.0.0.1:8000
+
+4. To stop the containers:
+```bash 
+docker-compose down
