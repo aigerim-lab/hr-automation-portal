@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, Request, UploadFile, File, HTTPException, Form
-
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from pathlib import Path
@@ -26,6 +26,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"], # Разрешаем именно твоему React-порту
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 UPLOAD_DIR = Path("app/uploads")

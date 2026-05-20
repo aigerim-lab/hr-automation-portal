@@ -100,3 +100,12 @@ docker-compose up --build
 4. To stop the containers:
 ```bash 
 docker-compose down
+```
+
+## How to run:
+- (hrr) venv -> git status "check" 
+- main road -> enter the command: uvicorn app.main:app
+- frontend (react) -> in other terminal: npm run dev (app.jsx & main.jsx)
+
+### React experience screenchot 
+![React](screenshots/react_example.png)
